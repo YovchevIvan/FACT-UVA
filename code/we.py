@@ -20,8 +20,6 @@ Tolga Bolukbasi, Kai-Wei Chang, James Zou, Venkatesh Saligrama, and Adam Kalai
 
 class WordEmbedding:
     def __init__(self, fname):
-        self.thresh = None
-        self.max_words = None
         self.desc = fname
         print("*** Reading data from " + fname)
 
