@@ -25,6 +25,8 @@ class WordEmbedding:
         self.desc = fname
         print("*** Reading data from " + fname)
 
+        # IMPORTANT: limit argument to be removed after refactoring.
+        # It is currently in there becuase it takes too long to load all the data
         model = gensim.models.KeyedVectors.load_word2vec_format(fname, binary=True, limit=100000)
         self.words = sorted([w for w in model.vocab], key=lambda w: model.vocab[w].index)
         self.vecs = np.array([model[w] for w in self.words], dtype='float32')
