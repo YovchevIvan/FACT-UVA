@@ -49,8 +49,7 @@ class WordEmbedding:
             fout.write(to_utf8("%s %s\n" % self.vecs.shape))
             # store in sorted order: most frequent words at the top
             for i, word in enumerate(self.words):
-                row = self.vecs[i]
-                fout.write(to_utf8(word) + b" " + row.tostring())
+                fout.write(to_utf8(word) + b" " + self.vecs[i].tostring())
 
 """
     Additional functions
