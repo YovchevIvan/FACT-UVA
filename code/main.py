@@ -76,13 +76,19 @@ def to_utf8(text, errors='strict', encoding='utf8'):
 
 def debias(E, gender_specific_words, definitional, equalize):
 	gender_direction = doPCA(definitional, E).components_[0]
-	specific_set = set(gender_specific_words)
+	# specific_set = set(gender_specific_words)
 
 	scaling = 1/gender_direction.dot(gender_direction)
 
-	for i, w in enumerate(E.words):
-		if w not in specific_set:
+	marks = np.zeros(len(E.words), dtype=bool)
+	for w in gender_specific_words:
+		marks[E.index[w]] = True
+
+	i = 0
+	for w in E.words:
+		if not marks[i]:
 			E.vecs[i] = drop(E.vecs[i], gender_direction, scaling)
+		i += 1
 	E.normalize()
 
 	# candidates = {x for e1, e2 in equalize for x in [(e1.lower(), e2.lower()),
