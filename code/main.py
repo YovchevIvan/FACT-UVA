@@ -84,18 +84,25 @@ def debias(E, gender_specific_words, definitional, equalize):
 		if w not in specific_set:
 			E.vecs[i] = drop(E.vecs[i], gender_direction, scaling)
 	E.normalize()
-	candidates = {x for e1, e2 in equalize for x in [(e1.lower(), e2.lower()),
-													 (e1.title(), e2.title()),
-													 (e1.upper(), e2.upper())]}
-	print(candidates)
-	for (a, b) in candidates:
-		if (a in E.index and b in E.index):
-			y = drop((E.v(a) + E.v(b)) / 2, gender_direction, scaling)
-			z = np.sqrt(1 - np.linalg.norm(y)**2)
-			if (E.v(a) - E.v(b)).dot(gender_direction) < 0:
-				z = -z
-			E.vecs[E.index[a]] = z * gender_direction + y
-			E.vecs[E.index[b]] = -z * gender_direction + y
+
+	# candidates = {x for e1, e2 in equalize for x in [(e1.lower(), e2.lower()),
+	# 												 (e1.title(), e2.title()),
+	# 												 (e1.upper(), e2.upper())]}
+
+	lower = map(lambda x : (x[0].lower(), x[1].lower()), equalize)
+	title = map(lambda x : (x[0].title(), x[1].title()), equalize)
+	upper = map(lambda x : (x[0].upper(), x[1].upper()), equalize)
+
+	for candidates in [lower, title, upper]:
+		print(candidates)
+		for (a, b) in candidates:
+			if (a in E.index and b in E.index):
+				y = drop((E.v(a) + E.v(b)) / 2, gender_direction, scaling)
+				z = np.sqrt(1 - np.linalg.norm(y)**2)
+				if (E.v(a) - E.v(b)).dot(gender_direction) < 0:
+					z = -z
+				E.vecs[E.index[a]] = z * gender_direction + y
+				E.vecs[E.index[b]] = -z * gender_direction + y
 	E.normalize()
 
 if __name__ == "__main__":
