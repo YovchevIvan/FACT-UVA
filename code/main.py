@@ -64,8 +64,8 @@ def doPCA(pairs, embedding, num_components = 10):
 	pca.fit(np.array(matrix))
 	return pca
 
-def drop(u, v):
-	return u - v * u.dot(v) / v.dot(v)
+def drop(u, v, s):
+	return u - v * u.dot(v) * s
 
 def to_utf8(text, errors='strict', encoding='utf8'):
 	"""Convert a string (unicode or bytestring in `encoding`), to bytestring in utf8."""
@@ -77,9 +77,12 @@ def to_utf8(text, errors='strict', encoding='utf8'):
 def debias(E, gender_specific_words, definitional, equalize):
 	gender_direction = doPCA(definitional, E).components_[0]
 	specific_set = set(gender_specific_words)
+
+	scaling = 1/gender_direction.dot(gender_direction)
+
 	for i, w in enumerate(E.words):
 		if w not in specific_set:
-			E.vecs[i] = drop(E.vecs[i], gender_direction)
+			E.vecs[i] = drop(E.vecs[i], gender_direction, scaling)
 	E.normalize()
 	candidates = {x for e1, e2 in equalize for x in [(e1.lower(), e2.lower()),
 													 (e1.title(), e2.title()),
@@ -87,7 +90,7 @@ def debias(E, gender_specific_words, definitional, equalize):
 	print(candidates)
 	for (a, b) in candidates:
 		if (a in E.index and b in E.index):
-			y = drop((E.v(a) + E.v(b)) / 2, gender_direction)
+			y = drop((E.v(a) + E.v(b)) / 2, gender_direction, scaling)
 			z = np.sqrt(1 - np.linalg.norm(y)**2)
 			if (E.v(a) - E.v(b)).dot(gender_direction) < 0:
 				z = -z
