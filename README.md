@@ -12,9 +12,18 @@ Lipstick: https://github.com/gonenhila/gender_bias_lipstick
 ### How to get the GoogleNews word2vec embeddings:
 Download it directly from the official [website](https://code.google.com/archive/p/word2vec/) or clone [this github repo](https://github.com/mmihaltz/word2vec-GoogleNews-vectors). Place the downloaded **.bin** file in the embeddings folder.
 
-### To run debias on embeddings do:
-```
-python3 main.py ../embeddings/GoogleNews-vectors-negative300.bin ../data/definitional_pairs.json ../data/gender_specific_full.json ../data/equalize_pairs.json ../embeddings/GoogleNews-vectors-negative300-hard-debiased.bin
-```
+### How to get the Glove embeddings:
+Go to the official [website](https://nlp.stanford.edu/projects/glove/). Download **glove.840B.300d.zip**. Place the downloaded **.txt** file in the embeddings folder.
 
+### To run debias on word2vec embeddings do:
+```
+python3 main.py
+```
+where __--em_limit__ argument can be used to limit the number of words being loaded
+
+### To run debias on glove embeddings do:
+```
+python3 main.py --em_type=glove --i_em=../embeddings/glove.840B.300d.txt 
+```
+where __--em_limit__ argument can be used to limit the number of words being loaded
 
