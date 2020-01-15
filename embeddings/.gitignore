@@ -1,4 +1,6 @@
 # Ignore everything in this directory
 *
+# Exception for results
+!debiased**.bin
 # Except this file
 !.gitignore
