@@ -22,8 +22,15 @@ python3 main.py
 where __--em_limit__ argument can be used to limit the number of words being loaded
 
 ### To run debias on glove embeddings do:
+
+If running for the first time do:
 ```
 ./gloveToW2V.sh ../embeddings/glove.840B.300d.txt ../embeddings/glove.formatted.txt
+```
+
+then to run do:
+
+```
 python3 main.py --bin=False --i_em=../embeddings/glove.formatted.txt
 ```
 where __--em_limit__ argument can be used to limit the number of words being loaded

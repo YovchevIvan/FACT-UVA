@@ -28,7 +28,7 @@ class WordEmbedding:
 
         assert (model is not None)
 
-        self.words = sorted([w for w in model.vocab if self.word_filter(w)], key=lambda w: model.vocab[w].index)
+        self.words = [w for w in model.vocab if self.word_filter(w)]
 
         print("Number of words: ", len(self.words))
 
