@@ -11,7 +11,7 @@ results (as there is a lot of contradictory results in the literature right now)
 This should also help to answer question if we should devise new methods for evaluating word embeddings.
 
 To evaluate your embedding (converted to word2vec or python dict pickle)
-on all fast-running benchmarks execute ``./scripts/eval_on_all.py <path-to-file>``.
+on all fast-running benchmarks execute ``./scripts/eval_on_all.py -f <path-to-file>``.
 See `here <https://github.com/kudkudak/word-embeddings-benchmarks/wiki>`_ results for embeddings available in the package.
 
 Warnings and Disclaimers:
@@ -77,11 +77,6 @@ To install for all users on Unix/Linux::
 You can also install it in development mode with::
 
     python setup.py develop
-
-
-Examples
-========
-See `examples` folder.
 
 License
 =======

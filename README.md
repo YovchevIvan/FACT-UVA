@@ -35,3 +35,18 @@ python3 main.py --bin=False --i_em=../embeddings/glove.formatted.txt
 ```
 where __--em_limit__ argument can be used to limit the number of words being loaded
 
+### To run bench-marking tests:
+
+First install the benchmarking tools provided by [this github repository](https://github.com/kudkudak/word-embeddings-benchmarks). To do so move to the directory `FACT-UVA/code/benchmarks` and run 
+
+```
+python3 setup.py install
+```
+
+Further instruction regarding the package installation can be found in `FACT-UVA/code/benchmarks/README.rst`. Once this is done, the testing script can be run with the following command from the directory `FACT-UVA/code/benchmarks/scripts`:
+
+```
+python3 evaluate_on_all.py -f <embeddings binary file>
+```
+
+The latter is the name of the output dumped by the script `FACT-UVA/code/main.py` after debiasing given embeddings.
