@@ -76,11 +76,8 @@ def doPCA(pairs, embedding, num_components = 10):
     pca.fit(np.array(matrix))
     return pca
 
-# def drop(u, v, s):
-#     return u - v * u.dot(v) * s
-
-def drop(u, v):
-    return u - v * u.dot(v) / v.dot(v)
+def drop(u, v, s):
+    return u - v * u.dot(v) * s
 
 def to_utf8(text, errors='strict', encoding='utf8'):
     """Convert a string (unicode or bytestring in `encoding`), to bytestring in utf8."""
@@ -89,63 +86,39 @@ def to_utf8(text, errors='strict', encoding='utf8'):
     # do bytestring -> unicode -> utf8 full circle, to ensure valid utf8
     return unicode(text, encoding, errors=errors).encode('utf8')
 
-# def debias(E, gender_specific_words, definitional, equalize):
-#     gender_direction = doPCA(definitional, E).components_[0]
-#     # specific_set = set(gender_specific_words)
-
-#     scaling = 1/gender_direction.dot(gender_direction)
-
-#     marks = np.zeros(len(E.words), dtype=bool)
-#     for w in gender_specific_words:
-#         marks[E.index[w]] = True
-
-#     i = 0
-#     for w in E.words:
-#         if not marks[i]:
-#             E.vecs[i] = drop(E.vecs[i], gender_direction, scaling)
-#         i += 1
-#     E.normalize()
-
-#     # candidates = {x for e1, e2 in equalize for x in [(e1.lower(), e2.lower()),
-#     #                                                (e1.title(), e2.title()),
-#     #                                                (e1.upper(), e2.upper())]}
-
-#     lower = map(lambda x : (x[0].lower(), x[1].lower()), equalize)
-#     title = map(lambda x : (x[0].title(), x[1].title()), equalize)
-#     upper = map(lambda x : (x[0].upper(), x[1].upper()), equalize)
-
-#     for candidates in [lower, title, upper]:
-#         print(candidates)
-#         for (a, b) in candidates:
-#             if (a in E.index and b in E.index):
-#                 y = drop((E.v(a) + E.v(b)) / 2, gender_direction, scaling)
-#                 z = np.sqrt(1 - np.linalg.norm(y)**2)
-#                 if (E.v(a) - E.v(b)).dot(gender_direction) < 0:
-#                     z = -z
-#                 E.vecs[E.index[a]] = z * gender_direction + y
-#                 E.vecs[E.index[b]] = -z * gender_direction + y
-#     E.normalize()
-
 def debias(E, gender_specific_words, definitional, equalize):
     gender_direction = doPCA(definitional, E).components_[0]
-    specific_set = set(gender_specific_words)
-    for i, w in enumerate(E.words):
-        if w not in specific_set:
-            E.vecs[i] = drop(E.vecs[i], gender_direction)
+
+    scaling = 1/gender_direction.dot(gender_direction)
+
+    marks = np.zeros(len(E.words), dtype=bool)
+    for w in gender_specific_words:
+        if w in E.index:
+            marks[E.index[w]] = True
+
+    i = 0
+    for w in E.words:
+        if not marks[i]:
+            E.vecs[i] = drop(E.vecs[i], gender_direction, scaling)
+        i += 1
     E.normalize()
-    candidates = {x for e1, e2 in equalize for x in [(e1.lower(), e2.lower()),
-                                                     (e1.title(), e2.title()),
-                                                     (e1.upper(), e2.upper())]}
-    print(candidates)
-    for (a, b) in candidates:
-        if (a in E.index and b in E.index):
-            y = drop((E.v(a) + E.v(b)) / 2, gender_direction)
-            z = np.sqrt(1 - np.linalg.norm(y)**2)
-            if (E.v(a) - E.v(b)).dot(gender_direction) < 0:
-                z = -z
-            E.vecs[E.index[a]] = z * gender_direction + y
-            E.vecs[E.index[b]] = -z * gender_direction + y
+
+    lower = map(lambda x : (x[0].lower(), x[1].lower()), equalize)
+    title = map(lambda x : (x[0].title(), x[1].title()), equalize)
+    upper = map(lambda x : (x[0].upper(), x[1].upper()), equalize)
+
+    for candidates in [lower, title, upper]:
+        print(candidates)
+        for (a, b) in candidates:
+            if (a in E.index and b in E.index):
+                y = drop((E.v(a) + E.v(b)) / 2, gender_direction, scaling)
+                z = np.sqrt(1 - np.linalg.norm(y)**2)
+                if (E.v(a) - E.v(b)).dot(gender_direction) < 0:
+                    z = -z
+                E.vecs[E.index[a]] = z * gender_direction + y
+                E.vecs[E.index[b]] = -z * gender_direction + y
     E.normalize()
+
 
 if __name__ == "__main__":
 
