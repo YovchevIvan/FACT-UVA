@@ -1,3 +1,5 @@
 build/**
 dist/**
 web.egg-info/**
+
+scripts/results.csv
