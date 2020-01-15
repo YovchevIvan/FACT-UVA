@@ -40,7 +40,7 @@ class WordEmbedding:
             self.normalize()
 
     def word_filter(self, word):
-        if len(word) < 20 and word.islower() and not bool(re.search(r'\W', word))  and not bool(re.search(r'[0-9]', word)):
+        if len(word) < 20 and word.islower() and not bool(re.search(r'\W|[0-9]', word)):
             return word
 
     def reindex(self):
