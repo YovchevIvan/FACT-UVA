@@ -35,6 +35,24 @@ python3 main.py --bin=False --i_em=../embeddings/glove.formatted.txt
 ```
 where __--em_limit__ argument can be used to limit the number of words being loaded
 
+### To run analogy generator
+
+Run the script in `FACT-UVA/code/analogies.py` as follows
+
+```
+python3 analogies.py --i_em=<path to embeggindg gile> --complete x-y-z
+```
+
+Where `x`, `y`, and `z` are words. The script will then find a word `w` such that `x:y=z:w`. Alternatively the script can be run as follows:
+
+```
+python3 analogies.py --i_em=<path to embeggindg gile> --pair_seed x-y
+```
+
+Where `x` and `y` are again words. The script will then find a pair `(z,w)` such that `x:y=z:w`.
+
+Additional arguments can be given such as `--em_limit` followed by the maximum number of embeddings to be loaded, and `--bin`, followed by a boolean value, to specify weather or not the loaded embeddings file is binary or not (txt).
+
 ### To run bench-marking tests:
 
 First install the benchmarking tools provided by [this github repository](https://github.com/kudkudak/word-embeddings-benchmarks). To do so move to the directory `FACT-UVA/code/benchmarks` and run 
