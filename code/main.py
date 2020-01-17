@@ -20,12 +20,22 @@ else:
 """
 
 class WordEmbedding:
-    def __init__(self, fname, binary, em_limit):
+    def __init__(self, fname, em_limit):
+
+        # info
         print("*** Reading data from " + fname)
+
+        # read txt by default
+        binary = False
+
+        # check file extension if .bin read binary file
+        if fname[-3:] == "bin":
+            binary = True
 
         #load model
         model = gensim.models.KeyedVectors.load_word2vec_format(fname, binary=binary, limit=em_limit)
 
+        # model has been loaded
         assert (model is not None)
 
         self.words = [w for w in model.vocab if self.word_filter(w)]
@@ -124,12 +134,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--em_limit", type=int, default=50000, help="number of words to load")
-    parser.add_argument("--bin", type = lambda x : x.lower()=="true" if x.lower()=="true" or x.lower()=="false" else None, default=True, help="Boolean, set to false if using txt file format")
     parser.add_argument("--i_em", default="../embeddings/GoogleNews-vectors-negative300.bin", help="The name of the embedding")
     parser.add_argument("--def_fn", help="JSON of definitional pairs", default="../data/definitional_pairs.json")
     parser.add_argument("--g_words_fn", help="File containing words not to neutralize (one per line)", default="../data/gender_specific_full.json")
-    parser.add_argument("--eq_fn", help="???.bin", default="../data/equalize_pairs.json")
-    parser.add_argument("--o_em", help="???.bin", default="../embeddings/debiased.bin")
+    parser.add_argument("--eq_fn", help="JSON with equalizing pairs", default="../data/equalize_pairs.json")
+    parser.add_argument("--o_em", help="Output embeddings file", default="../embeddings/debiased.bin")
 
     args = parser.parse_args()
     print(args)
@@ -145,7 +154,7 @@ if __name__ == "__main__":
         gender_specific_words = json.load(f)
     print("gender specific", len(gender_specific_words), gender_specific_words[:10])
 
-    E = WordEmbedding(args.i_em, args.bin, args.em_limit)
+    E = WordEmbedding(args.i_em, args.em_limit)
 
     print("Debiasing...")
     debias(E, gender_specific_words, defs, equalize_pairs)
