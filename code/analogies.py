@@ -44,7 +44,10 @@ class AnalogyGenerator(WordEmbedding):
 		while z_word is None or z_word not in self.nouns or z_word==x_word or z_word==y_word:
 			z_word = rand.choice(self.words)
 
-		return z_word, self.complete_analogy(x_word, y_word, z_word)
+		try:
+			return z_word, self.complete_analogy(x_word, y_word, z_word)
+		except:
+			return None, None
 
 	def complete_analogy(self, x_word, y_word, z_word):
 
@@ -52,9 +55,9 @@ class AnalogyGenerator(WordEmbedding):
 		Given x, y, and z finds w such that x is to y like z is to w
 		'''
 
-		return self.find_similar(x_word, y_word, self.vecs[self.index[z_word], :][None])[1]
+		return self.find_similar(x_word, y_word, self.vecs[self.index[z_word], :][None], [z_word])[1]
 
-	def find_similar(self, x_word, y_word, z_vals=None):
+	def find_similar(self, x_word, y_word, z_vals=None, z_words=None):
 
 		'''
 		Given a word pair (x, y) finds word pair(s) (z, w) such that it holds that "x is to y as z is to w"
@@ -62,6 +65,7 @@ class AnalogyGenerator(WordEmbedding):
 
 		if z_vals is None:
 			z_vals = self.vecs
+			z_words = self.words
 
 		# Convert words to vectors
 		x, y = self.v(x_word), self.v(y_word)
@@ -96,13 +100,13 @@ class AnalogyGenerator(WordEmbedding):
 			# Print progress
 			if z_vals.shape[0]>1:
 				progress = z_idx/(z_vals.shape[0]-1)*100
-				print(" checked %.2f"%(progress), '%', " [%s]\t best solution: \"%s is to %s like %s is to %s\" (dist %.3f) %s\r"%("▉"*int(progress) + int(100-progress)*" ", BOLD+BLUE+x_word+END, BOLD+BLUE+y_word+END, BOLD+GREEN+self.words[best_pair[0]]+END, BOLD+GREEN+self.words[best_pair[1]]+END, best_dist, " "*10), end="")
+				print(" checked %.2f"%(progress), '%', " [%s]\t best solution: \"%s is to %s like %s is to %s\" (dist %.3f) %s\r"%("▉"*int(progress) + int(100-progress)*" ", BOLD+BLUE+x_word+END, BOLD+BLUE+y_word+END, BOLD+GREEN+z_words[best_pair[0]]+END, BOLD+GREEN+self.words[best_pair[1]]+END, best_dist, " "*10), end="")
 
 			# Keep track of z's index without using enumarate
 			z_idx += 1
 
 		# Return word pair
-		return self.words[best_pair[0]], self.words[best_pair[1]]
+		return z_words[best_pair[0]], self.words[best_pair[1]]
 
 
 if __name__ == "__main__":
@@ -143,7 +147,8 @@ if __name__ == "__main__":
 				with IOController():
 					z, w = E.fetch_alanogy(x, y)
 
-				print("%s is to %s like %s is to %s"%(BOLD+BLUE+x+END, BOLD+BLUE+y+END, BOLD+GREEN+z+END, BOLD+GREEN+w+END))
+				if z is not None and w is not None:
+					print("%s is to %s like %s is to %s"%(BOLD+BLUE+x+END, BOLD+BLUE+y+END, BOLD+GREEN+z+END, BOLD+GREEN+w+END))
 
 	elif args.complete is not None:
 
