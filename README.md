@@ -16,10 +16,12 @@ Download it directly from the official [website](https://code.google.com/archive
 Go to the official [website](https://nlp.stanford.edu/projects/glove/). Download **glove.840B.300d.zip**. Place the downloaded **.txt** file in the embeddings folder.
 
 ### To run debias on word2vec embeddings do:
+
+By default the script uses the file __GoogleNews-vectors-negative300.bin__ to read from so it does not need to be specified. When using a diffrent embeddings file please use the __--i_em__ argument to specify it. Additionally, the __--em_limit__ argument can be used to limit the number of words being loaded, by default this is set to 50K words as specified in the original paper. If needed the resulting vector files can be saved in **.txt** format using the __o_ext__ argument. However, for perfromance reasons the default is set to **.bin**
+
 ```
-python3 main.py
+python3 main.py --debias_o_em=../embeddings/debiased_word2vec.bin --bias_o_em=../embeddings/bias_word2vec.bin
 ```
-where __--em_limit__ argument can be used to limit the number of words being loaded
 
 ### To run debias on glove embeddings do:
 
@@ -31,9 +33,8 @@ If running for the first time do:
 then to run do:
 
 ```
-python3 main.py --bin=False --i_em=../embeddings/glove.formatted.txt
+python3 main.py --i_em=../embeddings/glove.formatted.txt --debias_o_em=../embeddings/debiased_glove.bin --bias_o_em=../embeddings/bias_glove.bin
 ```
-where __--em_limit__ argument can be used to limit the number of words being loaded
 
 ### To run analogy generator
 
