@@ -41,18 +41,30 @@ python3 main.py --i_em=../embeddings/glove.formatted.txt --debias_o_em=../embedd
 Run the script in `FACT-UVA/code/analogies.py` as follows
 
 ```
-python3 analogies.py --i_em=<path to embeggindg gile> --complete x-y-z
+python3 analogies.py --i_em=<path to embeggindg file> --complete x-y-z
 ```
 
 Where `x`, `y`, and `z` are words. The script will then find a word `w` such that `x:y=z:w`. Alternatively the script can be run as follows:
 
 ```
-python3 analogies.py --i_em=<path to embeggindg gile> --pair_seed x-y
+python3 analogies.py --i_em=<path to embeggindg file> --pair_seed x-y
 ```
 
 Where `x` and `y` are again words. The script will then find a pair `(z,w)` such that `x:y=z:w`.
 
-Additional arguments can be given such as `--em_limit` followed by the maximum number of embeddings to be loaded, and `--bin`, followed by a boolean value, to specify weather or not the loaded embeddings file is binary or not (txt).
+Finally, a json file with a list of pairs can be given, to each be used as a generative pair for analogies. If so, the number of analogies must be also specified. To do so, run:
+
+```
+python3 analogies.py --i_em=<path to embeggindg file> --file_seed <path to json file> --n <number of analogies to generate>
+```
+
+The analogies are printed only, to store them you can run 
+
+```
+python3 analogies.py --i_em=<path to embeggindg file> --file_seed <path to json file> --n <number of analogies to generate> 1> <output file name>
+```
+
+Additional arguments can be given such as `--em_limit` followed by the maximum number of embeddings to be loaded .
 
 ### To run bench-marking tests:
 
