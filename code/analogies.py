@@ -2,8 +2,12 @@ from main import WordEmbedding
 
 from numpy.linalg import norm
 from numpy import unravel_index, argmax, isnan
+import random as rand
 
 import argparse
+import json
+
+import sys, os
 
 # CONSTANTS
 BOLD = '\033[1m'
@@ -11,9 +15,36 @@ END = '\033[0m'
 BLUE = '\033[94m'
 GREEN = '\033[92m'
 
+# Auxiliary classes
+
+class IOController:
+
+	def __enter__(self):
+		sys.stdout = open(os.devnull, 'w')
+
+	def __exit__(self, type, value, traceback):
+		sys.stdout = sys.__stdout__
+
 # MAIN CLASS
 
 class AnalogyGenerator(WordEmbedding):
+
+	def fetch_alanogy(self, x_word, y_word):
+
+		'''
+		Given a word pair x, y, randomly generate analogies x:y=z:w
+		'''
+
+		# Generate dictionary of nouns (only once)
+		if not hasattr(self, 'nouns'):
+			self.nouns = {x.name().split('.', 1)[0] for x in wn.all_synsets('n')}
+
+		# Find a third noun with which we can do the analogy
+		z_word = None
+		while z_word is None or z_word not in self.nouns or z_word==x_word or z_word==y_word:
+			z_word = rand.choice(self.words)
+
+		return z_word, self.complete_analogy(x_word, y_word, z_word)
 
 	def complete_analogy(self, x_word, y_word, z_word):
 
@@ -21,9 +52,9 @@ class AnalogyGenerator(WordEmbedding):
 		Given x, y, and z finds w such that x is to y like z is to w
 		'''
 
-		return self.fetch_similar(x_word, y_word, self.vecs[self.index[z_word], :][None])[1]
+		return self.find_similar(x_word, y_word, self.vecs[self.index[z_word], :][None])[1]
 
-	def fetch_similar(self, x_word, y_word, z_vals=None):
+	def find_similar(self, x_word, y_word, z_vals=None):
 
 		'''
 		Given a word pair (x, y) finds word pair(s) (z, w) such that it holds that "x is to y as z is to w"
@@ -78,17 +109,43 @@ if __name__ == "__main__":
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--pair_seed", type = lambda x : x.split('-'), help="pair seed for analogy separated by \'-\'", default=None)
+	parser.add_argument("--file_seed", type = str, default=None, help="json file containing list of paired words with which to generate a specified number of analogies")
+	parser.add_argument("--n", type = int, default = None, help = "if file_seed is specified, this is taken as the number of analogies to generate")
 	parser.add_argument("--complete", type = lambda x : x.split('-'), help="input x-y-z, returns w such that x:y=z:w", default=None)
 	parser.add_argument("--em_limit", type=int, default=50000, help="number of words to load")
 	parser.add_argument("--i_em", default="../embeddings/GoogleNews-vectors-negative300.bin", help="The name of the embedding")
-	parser.add_argument("--bin", type = lambda x : x.lower()=="true" if x.lower()=="true" or x.lower()=="false" else None, default=True, help="Boolean, set to false if using txt file format")
 
 	args = parser.parse_args()
 
 	# Load embeddings
-	E = AnalogyGenerator(args.i_em, args.bin, args.em_limit)
+	with IOController():
+		E = AnalogyGenerator(args.i_em, args.em_limit)
 
-	if args.complete is not None:
+	if args.file_seed is not None:
+
+		assert args.n is not None, "Unspecified number of analogies to generate"
+
+		# Import needed libraries
+		with IOController():
+			import nltk
+			nltk.download('wordnet')
+			from nltk.corpus import wordnet as wn
+
+		# Load pairs
+		with open(args.file_seed, 'r') as f:
+			pairs = json.load(f)
+
+		app = int(args.n/len(pairs)) # Compute number of analogies per pair
+
+		for x, y in pairs:
+			for i in range(app):
+
+				with IOController():
+					z, w = E.fetch_alanogy(x, y)
+
+				print("%s is to %s like %s is to %s"%(BOLD+BLUE+x+END, BOLD+BLUE+y+END, BOLD+GREEN+z+END, BOLD+GREEN+w+END))
+
+	elif args.complete is not None:
 
 		x, y, z = args.complete
 
@@ -105,3 +162,5 @@ if __name__ == "__main__":
 		z, w = E.fetch_similar(x, y)
 
 		print("\nFinal result: %s is to %s like %s is to %s"%(BOLD+BLUE+x+END, BOLD+BLUE+y+END, BOLD+GREEN+z+END, BOLD+GREEN+w+END))
+	else:
+		print("Nothing to do")
