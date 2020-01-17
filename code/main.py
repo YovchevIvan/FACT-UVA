@@ -121,7 +121,6 @@ def debias(E, gender_specific_words, definitional, equalize):
     upper = map(lambda x : (x[0].upper(), x[1].upper()), equalize)
 
     for candidates in [lower, title, upper]:
-        print(candidates)
         for (a, b) in candidates:
             if (a in E.index and b in E.index):
                 y = drop((E.v(a) + E.v(b)) / 2, gender_direction, scaling)
@@ -141,7 +140,8 @@ if __name__ == "__main__":
     parser.add_argument("--def_fn", help="JSON of definitional pairs", default="../data/definitional_pairs.json")
     parser.add_argument("--g_words_fn", help="File containing words not to neutralize (one per line)", default="../data/gender_specific_full.json")
     parser.add_argument("--eq_fn", help="JSON with equalizing pairs", default="../data/equalize_pairs.json")
-    parser.add_argument("--o_em", help="Output embeddings file", default="../embeddings/debiased.bin")
+    parser.add_argument("--debias_o_em", help="Output debiased embeddings file", default="../embeddings/debiased.bin")
+    parser.add_argument("--bias_o_em", help="Output bieased embeddings file", default="../embeddings/biased.bin")
     parser.add_argument("--o_ext", help="Extension of output file [txt, bin]", default="bin")
 
     args = parser.parse_args()
@@ -149,22 +149,22 @@ if __name__ == "__main__":
 
     with open(args.def_fn, "r") as f:
         defs = json.load(f)
-    print("definitional", defs)
 
     with open(args.eq_fn, "r") as f:
         equalize_pairs = json.load(f)
 
     with open(args.g_words_fn, "r") as f:
         gender_specific_words = json.load(f)
-    print("gender specific", len(gender_specific_words), gender_specific_words[:10])
 
     E = WordEmbedding(args.i_em, args.em_limit)
+    print("Saving biased vectors to file...")
+    E.save_w2v(args.bias_o_em, args.o_ext)
 
     print("Debiasing...")
     debias(E, gender_specific_words, defs, equalize_pairs)
 
     print("Saving to file...")
-    E.save_w2v(args.o_em, args.o_ext)
+    E.save_w2v(args.debias_o_em, args.o_ext)
 
     print("\n\nDone!\n")
 
