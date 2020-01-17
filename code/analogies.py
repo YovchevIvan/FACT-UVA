@@ -90,10 +90,13 @@ class AnalogyGenerator(WordEmbedding):
 		for z in z_vals:
 			analogies = z - self.vecs # Possible analogy vectors
 
-			analogies_dir = analogies/norm(analogies, axis=1)[:, None] # Directions
-			analogies_dir[isnan(analogies_dir)] = -1 # Eliminate nan values (for normalized z-z)
+			norms = norm(analogies, axis=1)
+			analogies_dir = analogies/norms[:, None] # Directions
 
 			dist = analogies_dir.dot(analogy_dir) # Compute cosine distances
+
+			dist[isnan(dist)] = -1 # Eliminate nan values (for normalized z-z)
+			dist[norms>1] = -1 # Exclude pairs that are too distant
 
 			w_idx = argmax(dist) # Get index of best distance for given z
 			temp_val = dist[w_idx] # Get value of best distance for given z
