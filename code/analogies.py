@@ -25,6 +25,12 @@ class IOController:
 	def __exit__(self, type, value, traceback):
 		sys.stdout = sys.__stdout__
 
+# Import needed libraries
+with IOController():
+	import nltk
+	nltk.download('wordnet')
+	from nltk.corpus import wordnet as wn
+
 # MAIN CLASS
 
 class AnalogyGenerator(WordEmbedding):
@@ -129,12 +135,6 @@ if __name__ == "__main__":
 
 		assert args.n is not None, "Unspecified number of analogies to generate"
 
-		# Import needed libraries
-		with IOController():
-			import nltk
-			nltk.download('wordnet')
-			from nltk.corpus import wordnet as wn
-
 		# Load pairs
 		with open(args.file_seed, 'r') as f:
 			pairs = json.load(f)
@@ -163,9 +163,20 @@ if __name__ == "__main__":
 
 		x, y = args.pair_seed
 
-		print("Completing %s is to %s like z is to w, for any possible (z,w) pair..."%(x, y))
-		z, w = E.fetch_similar(x, y)
+		if args.n is not None:
+			for i in range(args.n):
 
-		print("\nFinal result: %s is to %s like %s is to %s"%(BOLD+BLUE+x+END, BOLD+BLUE+y+END, BOLD+GREEN+z+END, BOLD+GREEN+w+END))
+				with IOController():
+					z, w = E.fetch_alanogy(x, y)
+
+				if z is not None and w is not None:
+					print("%s is to %s like %s is to %s"%(BOLD+BLUE+x+END, BOLD+BLUE+y+END, BOLD+GREEN+z+END, BOLD+GREEN+w+END))
+
+		else:
+
+			print("Completing %s is to %s like z is to w, for any possible (z,w) pair..."%(x, y))
+			z, w = E.find_similar(x, y)
+
+			print("\nFinal result: %s is to %s like %s is to %s"%(BOLD+BLUE+x+END, BOLD+BLUE+y+END, BOLD+GREEN+z+END, BOLD+GREEN+w+END))
 	else:
 		print("Nothing to do")
