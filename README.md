@@ -69,3 +69,8 @@ python3 evaluate_on_all.py -f <embeddings binary file>
 ```
 
 The latter is the name of the output dumped by the script `FACT-UVA/code/main.py` after debiasing given embeddings.
+
+To run all benchmark tests run
+```
+./run_test.sh
+```
