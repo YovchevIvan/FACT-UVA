@@ -78,7 +78,7 @@ class AnalogyGenerator(WordEmbedding):
 
 		z_idx = 0
 		for z in z_vals:
-			analogies = z - z_vals # Possible analogy vectors
+			analogies = z - self.vecs # Possible analogy vectors
 
 			analogies_dir = analogies/norm(analogies, axis=1)[:, None] # Directions
 			analogies_dir[isnan(analogies_dir)] = -1 # Eliminate nan values (for normalized z-z)
