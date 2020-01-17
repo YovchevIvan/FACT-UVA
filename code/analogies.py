@@ -102,7 +102,7 @@ class AnalogyGenerator(WordEmbedding):
 			temp_val = dist[w_idx] # Get value of best distance for given z
 
 			# Store best so far
-			if best_dist is None or temp_val > best_dist:
+			if best_dist is None or temp_val >= best_dist:
 				best_dist = temp_val
 				best_pair = (z_idx, w_idx)
 
