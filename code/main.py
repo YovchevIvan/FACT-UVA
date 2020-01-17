@@ -66,12 +66,15 @@ class WordEmbedding:
         self.vecs /= np.linalg.norm(self.vecs, axis=1)[:, np.newaxis]
         self.reindex()
 
-    def save_w2v(self, filename, binary=True):
+    def save_w2v(self, filename, ext):
         with open(filename, 'wb') as fout:
             fout.write(to_utf8("%s %s\n" % self.vecs.shape))
             # store in sorted order: most frequent words at the top
             for i, word in enumerate(self.words):
-                fout.write(to_utf8(word) + b" " + self.vecs[i].tostring())
+                if ext == "bin":
+                    fout.write(to_utf8(word) + b" " + self.vecs[i].tostring())
+                elif ext == "txt":
+                    fout.write(to_utf8("%s %s\n" % (word, " ".join([str(j) for j in self.vecs[i]]))))
 
 """
     Additional functions
@@ -139,6 +142,7 @@ if __name__ == "__main__":
     parser.add_argument("--g_words_fn", help="File containing words not to neutralize (one per line)", default="../data/gender_specific_full.json")
     parser.add_argument("--eq_fn", help="JSON with equalizing pairs", default="../data/equalize_pairs.json")
     parser.add_argument("--o_em", help="Output embeddings file", default="../embeddings/debiased.bin")
+    parser.add_argument("--o_ext", help="Extension of output file [txt, bin]", default="bin")
 
     args = parser.parse_args()
     print(args)
@@ -160,7 +164,7 @@ if __name__ == "__main__":
     debias(E, gender_specific_words, defs, equalize_pairs)
 
     print("Saving to file...")
-    E.save_w2v(args.o_em)
+    E.save_w2v(args.o_em, args.o_ext)
 
     print("\n\nDone!\n")
 
