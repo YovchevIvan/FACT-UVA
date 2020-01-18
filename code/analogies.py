@@ -162,7 +162,7 @@ if __name__ == "__main__":
         x, y, z = args.complete
 
         print("Completing %s is to %s like %s is to w, for any possible w ..."%(x, y, z))
-        w = E.complete_analogy(x, y, z)
+        _, w, _ = E.complete_analogy(x, y, z)
 
         print("\nFinal result: %s is to %s like %s is to %s"%( BOLD+BLUE+x+END, BOLD+BLUE+y+END, BOLD+BLUE+z+END, BOLD+GREEN+w+END))
 
@@ -196,7 +196,7 @@ if __name__ == "__main__":
         else:
 
             print("Completing %s is to %s like z is to w, for any possible (z,w) pair..."%(x, y))
-            z, w = E.find_similar(x, y)
+            z, w, _ = E.find_similar(x, y)
 
             print("\nFinal result: %s is to %s like %s is to %s"%(BOLD+BLUE+x+END, BOLD+BLUE+y+END, BOLD+GREEN+z+END, BOLD+GREEN+w+END))
     else:
