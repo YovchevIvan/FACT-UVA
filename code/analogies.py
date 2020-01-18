@@ -1,7 +1,7 @@
 from main import WordEmbedding
 
 from numpy.linalg import norm
-from numpy import unravel_index, argmax, isnan
+from numpy import unravel_index, argmax, isnan, delete, arange
 import random as rand
 
 import argparse
@@ -100,13 +100,23 @@ class AnalogyGenerator(WordEmbedding):
 			dist[isnan(dist)] = -1 # Eliminate nan values (for normalized z-z)
 			dist[norms>1] = -1 # Exclude pairs that are too distant
 
-			w_idx = argmax(dist) # Get index of best distance for given z
-			temp_val = dist[w_idx] # Get value of best distance for given z
+			dist_idx = arange(dist.size)
+
+			while dist_idx.size > 1:
+				w_idx = argmax(dist) # Get index of best distance for given z
+				temp_val = dist[w_idx] # Get value of best distance for given z
+
+				w_word = self.words[dist_idx[w_idx]]
+				if w_word==x_word or w_word==y_word or w_word==z_words[z_idx]:
+					dist = delete(dist, w_idx)
+					dist_idx = delete(dist_idx, w_idx)
+				else:
+					break
 
 			# Store best so far
 			if best_dist is None or temp_val >= best_dist:
 				best_dist = temp_val
-				best_pair = (z_idx, w_idx)
+				best_pair = (z_idx, dist_idx[w_idx])
 
 			# Print progress
 			if z_vals.shape[0]>1:
