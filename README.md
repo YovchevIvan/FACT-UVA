@@ -50,7 +50,7 @@ Where `x`, `y`, and `z` are words. The script will then find a word `w` such tha
 python3 analogies.py --i_em=<path to embeggindg file> --pair_seed x-y
 ```
 
-Where `x` and `y` are again words. The script will then find a pair `(z,w)` such that `x:y=z:w`. If a number `--n` is specified, then that number of analogies are generated (by sampling random `z` and solving `x:y=z:w` for `w`).
+Where `x` and `y` are again words. The script will then find a pair `(z,w)` such that `x:y=z:w`. If a number `--n` is specified, then that number of analogies are generated (by sampling random `z` and solving `x:y=z:w` for `w`), then the parameter `--pairs_fname` followed by a file name, will be used to determine the file in which to dump the output. Finally, if more than one solution is given (if `--n` is specified), the pairs will be sorted by distance, and the top 10 closest one displayed as well.
 
 Finally, a json file with a list of pairs can be given, to each be used as a generative pair for analogies. If so, the number of analogies must be also specified. To do so, run:
 
