@@ -86,7 +86,8 @@ class AnalogyGenerator(WordEmbedding):
 		# Need to do iteratively to avoid memory errors
 
 		best_dist = None # Best cosine distance so far
-		best_pair = 0, 0 # Best pair so far
+		best_norm = None # Norm of the vector distance for the best pair
+		best_pair = None, None # Best pair so far
 
 		z_idx = 0
 		for z in z_vals:
@@ -105,6 +106,7 @@ class AnalogyGenerator(WordEmbedding):
 			while dist_idx.size > 1:
 				w_idx = argmax(dist) # Get index of best distance for given z
 				temp_val = dist[w_idx] # Get value of best distance for given z
+				temp_norm = norms[dist_idx[w_idx]] # Norm of the vector for the best pair, given z
 
 				w_word = self.words[dist_idx[w_idx]]
 				if w_word==x_word or w_word==y_word or w_word==z_words[z_idx]:
@@ -114,14 +116,15 @@ class AnalogyGenerator(WordEmbedding):
 					break
 
 			# Store best so far
-			if best_dist is None or temp_val >= best_dist:
+			if best_dist is None or temp_val > best_dist or (temp_val == best_dist and temp_norm < best_norm):
 				best_dist = temp_val
 				best_pair = (z_idx, dist_idx[w_idx])
+				best_norm = temp_norm
 
 			# Print progress
 			if z_vals.shape[0]>1:
 				progress = z_idx/(z_vals.shape[0]-1)*100
-				print(" checked %.2f"%(progress), '%', " [%s]\t best solution: \"%s is to %s like %s is to %s\" (dist %.3f) %s\r"%("▉"*int(progress) + int(100-progress)*" ", BOLD+BLUE+x_word+END, BOLD+BLUE+y_word+END, BOLD+GREEN+z_words[best_pair[0]]+END, BOLD+GREEN+self.words[best_pair[1]]+END, best_dist, " "*10), end="")
+				print(" checked %.2f"%(progress), '%', " [%s]\t best solution: \"%s is to %s like %s is to %s\" (dist %.3f, norm %.3f) %s\r"%("▉"*int(progress) + int(100-progress)*" ", BOLD+BLUE+x_word+END, BOLD+BLUE+y_word+END, BOLD+GREEN+z_words[best_pair[0]]+END, BOLD+GREEN+self.words[best_pair[1]]+END, best_dist, best_norm, " "*10), end="")
 
 			# Keep track of z's index without using enumarate
 			z_idx += 1
