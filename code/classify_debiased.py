@@ -116,7 +116,7 @@ def train_and_predict(space_train, space_test, clf, portion, wv, w2i):
 def run_all_classifiers(wv, w2i):
     # define classifier
     # RBF SvM
-    clf_svm_rbf = svm.SVC(C=0.05)
+    clf_svm_rbf = svm.SVC(C=10)
     # Linear SVM
     clf_svm_linear = svm.SVC(kernel = 'linear')
     # Random Forest
