@@ -166,9 +166,18 @@ def run_all_classifiers(wv, w2i):
             # ### Association Experiments (Calisken et al.)
 
     fig,a =  plt.subplots(1, 3)
+    plt.suptitle("Classification results - " + config.embedding)
     a[0].set_title("Classification on original embeddings")
+    a[0].set_xlabel('training data used (portion)')
+    a[0].set_ylabel('accuracy')
+    a[0].set_ylim(0.7, 1.05)
     a[1].set_title("Classification on debiased embeddings")
+    a[1].set_xlabel('training data used (portion)')
+    a[1].set_ylabel('accuracy')
+    a[1].set_ylim(0.7, 1.05)
     a[2].set_title("Difference: original - debiased")
+    a[2].set_xlabel('training data used (portion)')
+    a[2].set_ylabel('accuracy difference')
     for accuracy in accuracies_bef:
         a[0].plot(splits, accuracy)
     for accuracy in accuracies_aft:
