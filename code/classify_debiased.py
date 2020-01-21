@@ -45,7 +45,7 @@ def compute_bias_by_projection(space_to_tag, vocab,  wv, w2i):
 def most_biased(gender_bias_bef):
     # extract nost biased words (in case it is not stored in the goven folder)
 
-    size_train = 3000
+    size_train = 500
     size_test = 2000
     size = size_train + size_test
     sorted_g = sorted(gender_bias_bef.items(), key=operator.itemgetter(1))
@@ -77,7 +77,7 @@ def train_and_predict(space_train, space_test, clf, portion, wv, w2i):
 
     ## loading male and female most biased words
 
-    size_train = 3000
+    size_train = 500
     size_test = 2000
     size = size_train + size_test
     with open('females.data', 'rb') as filehandle:
@@ -116,7 +116,7 @@ def train_and_predict(space_train, space_test, clf, portion, wv, w2i):
 def run_all_classifiers(wv, w2i):
     # define classifier
     # RBF SvM
-    clf_svm_rbf = svm.SVC(C=10)
+    clf_svm_rbf = svm.SVC(25)
     # Linear SVM
     clf_svm_linear = svm.SVC(kernel = 'linear')
     # Random Forest
@@ -134,8 +134,9 @@ def run_all_classifiers(wv, w2i):
 
 
 
-    classifiers = [clf_svm_rbf, clf_svm_linear, clf_forest, clf_boost, clf_logreg, clf_mlp_linear, clf_mlp, clf_deep]
-    classifier_names = ["SVM - radial basis", "SVM - linear", "Random forest", "Gradient Boosting" ,"Logistic regression", "Linear MLP", "MLP", "Deep network"]
+    classifiers = [clf_svm_rbf, clf_logreg, clf_mlp]
+    classifier_names = ["SVM - radial basis", "Logistic regression","MLP"]
+    seeds = [1,2,3,4,5,6,7,8,9,10]
 
     splits = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     accuracies_bef = []
@@ -151,19 +152,27 @@ def run_all_classifiers(wv, w2i):
         for split in splits:
             print("\nData used (portion): " + str(split) + "\n")
             # classification before debiasing
+            acc_bef = 0
+            acc_aft = 0
+            for se in seeds:
+                seed(se)
+                acc_bef += train_and_predict('bef', 'bef', clf, split, wv, w2i)
 
-            acc_bef = train_and_predict('bef', 'bef', clf, split, wv, w2i)
+                # classification after debiasing
 
-            # classification after debiasing
+                acc_aft += train_and_predict('aft', 'aft', clf, split, wv, w2i)
 
-            acc_aft = train_and_predict('aft', 'aft', clf, split, wv, w2i)
+            acc_bef/= len(seeds)
+            acc_aft/= len(seeds)
             clf_acc_bef.append(acc_bef)
             clf_acc_aft.append(acc_aft)
             acc_diff.append(acc_bef-acc_aft)
         accuracies_bef.append(clf_acc_bef)
         accuracies_aft.append(clf_acc_aft)
         acc_diffs.append(acc_diff)
-            # ### Association Experiments (Calisken et al.)
+    
+    
+    #### Plotting
 
     fig,a =  plt.subplots(1, 3)
     plt.suptitle("Classification results - " + config.embedding)
