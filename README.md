@@ -27,7 +27,7 @@ python3 main.py --debias_o_em=../embeddings/debiased_word2vec.bin --bias_o_em=..
 
 If running for the first time do:
 ```
-./gloveToW2V.sh ../embeddings/glove.840B.300d.txt ../embeddings/glove.formatted.txt
+./gloveToW2V.sh ../../embeddings/glove.840B.300d.txt ../../embeddings/glove.formatted.txt
 ```
 
 then to run do:

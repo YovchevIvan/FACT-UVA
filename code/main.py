@@ -9,6 +9,7 @@ import argparse
 import json
 import numpy as np
 import scipy.sparse
+import warnings
 from sklearn.decomposition import PCA
 if sys.version_info[0] < 3:
     import io
@@ -167,7 +168,9 @@ if __name__ == "__main__":
     parser.add_argument("--o_ext", help="Extension of output file [txt, bin]", default="bin")
 
     args = parser.parse_args()
-    print(args)
+
+    # get rid of annoying warning
+    warnings.filterwarnings("ignore")
 
     main(args)
 
