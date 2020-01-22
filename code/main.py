@@ -131,22 +131,7 @@ def debias(E, gender_specific_words, definitional, equalize):
                 E.vecs[E.index[b]] = -z * gender_direction + y
     E.normalize()
 
-
-if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--em_limit", type=int, default=50000, help="number of words to load")
-    parser.add_argument("--i_em", default="../embeddings/GoogleNews-vectors-negative300.bin", help="The name of the embedding")
-    parser.add_argument("--def_fn", help="JSON of definitional pairs", default="../data/definitional_pairs.json")
-    parser.add_argument("--g_words_fn", help="File containing words not to neutralize (one per line)", default="../data/gender_specific_full.json")
-    parser.add_argument("--eq_fn", help="JSON with equalizing pairs", default="../data/equalize_pairs.json")
-    parser.add_argument("--debias_o_em", help="Output debiased embeddings file", default="../embeddings/debiased.bin")
-    parser.add_argument("--bias_o_em", help="Output bieased embeddings file", default="../embeddings/biased.bin")
-    parser.add_argument("--o_ext", help="Extension of output file [txt, bin]", default="bin")
-
-    args = parser.parse_args()
-    print(args)
-
+def main(args):
     with open(args.def_fn, "r") as f:
         defs = json.load(f)
 
@@ -167,4 +152,22 @@ if __name__ == "__main__":
     E.save_w2v(args.debias_o_em, args.o_ext)
 
     print("\n\nDone!\n")
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--em_limit", type=int, default=50000, help="number of words to load")
+    parser.add_argument("--i_em", default="../embeddings/GoogleNews-vectors-negative300.bin", help="The name of the embedding")
+    parser.add_argument("--def_fn", help="JSON of definitional pairs", default="../data/definitional_pairs.json")
+    parser.add_argument("--g_words_fn", help="File containing words not to neutralize (one per line)", default="../data/gender_specific_full.json")
+    parser.add_argument("--eq_fn", help="JSON with equalizing pairs", default="../data/equalize_pairs.json")
+    parser.add_argument("--debias_o_em", help="Output debiased embeddings file", default="../embeddings/debiased.bin")
+    parser.add_argument("--bias_o_em", help="Output bieased embeddings file", default="../embeddings/biased.bin")
+    parser.add_argument("--o_ext", help="Extension of output file [txt, bin]", default="bin")
+
+    args = parser.parse_args()
+    print(args)
+
+    main(args)
 
