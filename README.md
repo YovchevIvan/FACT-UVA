@@ -98,7 +98,9 @@ Parameters:
 --embedding: the embeddings used: w2v|glove
 
 Run (from code folder):
+```
 python3 classify_debiased.py --embedding=embedding name
+```
 
  
 
