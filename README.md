@@ -86,3 +86,19 @@ To run all benchmark tests run
 ```
 ./run_test.sh
 ```
+
+### To run classification
+This part is based on the paper 'Lipstick on a Pig: Debiasing Methods Cover up Systematic Gender Biases in Word Embeddings But do not Remove Them'
+paper: https://arxiv.org/abs/1903.03862
+github: https://github.com/gonenhila/gender_bias_lipstick
+
+Our script extends the classification test to run for severall classifiers, with increasing amounts of training data
+
+Parameters: 
+--embedding: the embeddings used: w2v|glove
+
+Run (from code folder):
+python3 classify_debiased.py --embedding=embedding name
+
+ 
+
