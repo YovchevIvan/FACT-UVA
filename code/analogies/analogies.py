@@ -1,3 +1,7 @@
+import sys, os
+
+sys.path.append('../')
+
 from main import WordEmbedding
 
 from numpy.linalg import norm
@@ -6,8 +10,6 @@ import random as rand
 
 import argparse
 import json
-
-import sys, os
 
 from main import to_utf8
 
