@@ -208,11 +208,11 @@ if __name__ == "__main__":
 
     #select correct embeddings paths
     if config.embedding == 'w2v':
-        emb_path_bef = "../embeddings/bias_word2vec.bin"
-        emb_path_aft = "../embeddings/debiased_word2vec.bin"
+        emb_path_bef = "../../embeddings/bias_word2vec.bin"
+        emb_path_aft = "../../embeddings/debiased_word2vec.bin"
     elif config.embedding == 'glove':
-        emb_path_bef = "../embeddings/bias_glove.bin"
-        emb_path_aft = "../embeddings/debiased_glove.bin"
+        emb_path_bef = "../../embeddings/bias_glove.bin"
+        emb_path_aft = "../../embeddings/debiased_glove.bin"
     else:
         print("Please give a correct embeddings name: w2v|glove")
         exit()
