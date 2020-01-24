@@ -203,20 +203,13 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 
 	# Model params
-	parser.add_argument('--embedding', type=str, default="w2v", help="Embeddings for the test: w2v or glove")
+	parser.add_argument('--embeddings_original', type=str, default="../../embeddings/bias_word2vec.bin", help="Path to original embeddings file")
+	parser.add_argument('--embeddings_debiased', type=str, default="../../embeddings/debiased_word2vec.bin", help="Path to debiased embeddings file")
 	parser.add_argument('--fname', type=str, default="results", help="Prefix name of output file")
 	config = parser.parse_args()
 
-	#select correct embeddings paths
-	if config.embedding == 'w2v':
-		emb_path_bef = "../../embeddings/bias_word2vec.bin"
-		emb_path_aft = "../../embeddings/debiased_word2vec.bin"
-	elif config.embedding == 'glove':
-		emb_path_bef = "../../embeddings/bias_glove.bin"
-		emb_path_aft = "../../embeddings/debiased_glove.bin"
-	else:
-		print("Please give a correct embeddings name: w2v|glove")
-		exit()
+	emb_path_bef = config.embeddings_original
+	emb_path_aft = config.embeddings_debiased
 
 	#loading limited embeddings
 	vocab = {} 
