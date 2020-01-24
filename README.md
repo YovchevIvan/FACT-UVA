@@ -100,6 +100,7 @@ Parameters:
 
 --embeddings_debiased: Path to the file containing the debiased embeddings (default: "../../embeddings/debiased_word2vec.bin")
 
+--fname: the name of tag added to the plot output
 
 Run (from code folder):
 ```
