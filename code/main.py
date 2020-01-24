@@ -139,10 +139,10 @@ def to_utf8(text, errors='strict', encoding='utf8'):
     # do bytestring -> unicode -> utf8 full circle, to ensure valid utf8
     return unicode(text, encoding, errors=errors).encode('utf8')
 
-def debias(E, gender_specific_words, definitional, equalize):
+def debias(E, gender_specific_words, definitional, equalize, num_components):
 
     # get gender axis
-    gender_direction = doPCA(definitional, E).components_[0]
+    gender_direction = doPCA(definitional, E, num_components).components_[0]
 
     # get param
     scaling = 1/gender_direction.dot(gender_direction)
@@ -217,7 +217,7 @@ def main(args):
 
     # debias
     print("Debiasing...")
-    debias(E, gender_specific_words, defs, equalize_pairs)
+    debias(E, gender_specific_words, defs, equalize_pairs, args.n_comp)
 
     # dump debiased vectors to file
     print("Saving debiased vectors to file...")
@@ -237,6 +237,7 @@ if __name__ == "__main__":
     parser.add_argument("--debias_o_em", help="Output debiased embeddings file", default="../embeddings/debiased.bin")
     parser.add_argument("--bias_o_em", help="Output bieased embeddings file", default="../embeddings/biased.bin")
     parser.add_argument("--o_ext", help="Extension of output file [txt, bin]", default="bin")
+    parser.add_argument("--n_comp", type=int, help="number of components for PCA", default=10)
 
     args = parser.parse_args()
 
