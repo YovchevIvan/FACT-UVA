@@ -95,8 +95,11 @@ github: https://github.com/gonenhila/gender_bias_lipstick
 Our script extends the classification test to run for severall classifiers, with increasing amounts of training data
 
 Parameters: 
+
 --embeddings_original: Path to the file containing the original embeddings (default: "../../embeddings/bias_word2vec.bin")
+
 --embeddings_debiased: Path to the file containing the debiased embeddings (default: "../../embeddings/debiased_word2vec.bin")
+
 
 Run (from code folder):
 ```
