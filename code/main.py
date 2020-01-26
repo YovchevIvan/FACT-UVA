@@ -16,6 +16,14 @@ if sys.version_info[0] < 3:
     open = io.open
 else:
     unicode = str
+
+# CONSTANTS
+BOLD = '\033[1m' # add this string to start printing in bold
+END = '\033[0m' # add this string to start printing normally
+BLUE = '\033[94m' # add this string to start printing in blue
+RED = '\033[31m' # add this string to start printing in red
+GREEN = '\033[92m' # add this string to start printing in green
+
 """
     WordEmbedding Class definition
 """
@@ -202,6 +210,36 @@ def debias(E, gender_specific_words, definitional, equalize, num_components):
                 E.vecs[E.index[b]] = -z * gender_direction + y
     E.normalize()
 
+def project_professions(args, E, before=True):
+
+    # if professions are being projected
+    if args.load_profs:
+        w_axis = args.axis_profs.split("-")
+        v_axis = E.diff(w_axis[0], w_axis[1])
+
+        p_profs = sorted([(E.v(w).dot(v_axis), w) for w in args.profs if w in E.index])
+
+        num = args.n_profs
+        if num > len(p_profs):
+            num = len(p_profs)
+
+        extreme_1 = p_profs[0:num]
+        extreme_2 = p_profs[-num:]
+        # reverse
+        extreme_2 = extreme_2[::-1]
+
+        if before:
+            print("%c%s%s%s%s" % ('\n', BOLD, RED, "   Before debiasing", END))
+        else:
+            print("%c%s%s%s%s" % ('\n', BOLD, GREEN, "   After debiasing", END))
+
+        print("%s%s   %s %s\t%s %s%s" % (BOLD, BLUE, w_axis[0], "extreme".ljust(15), w_axis[1], "extreme", END))
+
+        tab = len(w_axis[0]) + 15
+        for i in range(len(extreme_1)):
+            print("%s%d.%s %s\t%s" % (BOLD, i + 1, END, extreme_2[i][1].ljust(tab), extreme_1[i][1]))
+        print("\n")
+
 def main(args):
 
     # read definitional pairs
@@ -220,8 +258,7 @@ def main(args):
         # read professions lisst
         with open(args.profs, "r") as f:
             professions = json.load(f)
-            professions = [p[0] for p in professions]
-            print(professions)
+            args.profs = [p[0] for p in professions]
 
     # create word embedding
     E = WordEmbedding(args.i_em, args.em_limit)
@@ -229,6 +266,8 @@ def main(args):
     # dump vectors prior to debiasing
     print("Saving biased vectors to file...")
     E.save_w2v(args.bias_o_em, args.o_ext)
+
+    project_professions(args, E, True)
 
     # debias
     print("Debiasing...")
@@ -238,7 +277,9 @@ def main(args):
     print("Saving debiased vectors to file...")
     E.save_w2v(args.debias_o_em, args.o_ext)
 
-    print("\n\nDone!\n")
+    project_professions(args, E, False)
+
+    print("Done!\n")
 
 
 if __name__ == "__main__":
@@ -251,6 +292,8 @@ if __name__ == "__main__":
     parser.add_argument("--eq_fn", help="JSON with equalizing pairs", default="../data/equalize_pairs.json")
     parser.add_argument("--load_profs", type=bool, help="Flag for loading professions", default=False)
     parser.add_argument("--profs", help="JSON with list of professions", default="../data/professions.json")
+    parser.add_argument("--axis_profs", help="Projection axis for professions", default="softball-football")
+    parser.add_argument("--n_profs", type=int, help="Number of most extreme professions to print", default=5)
     parser.add_argument("--debias_o_em", help="Output debiased embeddings file", default="../embeddings/debiased.bin")
     parser.add_argument("--bias_o_em", help="Output bieased embeddings file", default="../embeddings/biased.bin")
     parser.add_argument("--o_ext", help="Extension of output file [txt, bin]", default="bin")
