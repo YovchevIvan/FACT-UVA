@@ -42,23 +42,22 @@ with IOController():
 
 class AnalogyGenerator(WordEmbedding):
 
-	def fetch_alanogy(self, x_word, y_word):
+	def fetch_alanogy(self, x_word, y_word, z_word=None):
 
 		'''
 		Given a word pair x, y, randomly generate analogies x:y=z:w
 		'''
 
 		# Generate dictionary of nouns (only once)
-		if not hasattr(self, 'nouns'): # if the field self.nouns does not exist already
-			# get a list of nouns (from nltk's  wordnet)
+		if z_word is None and not hasattr(self, 'nouns'): # if the field self.nouns does not exist already
+			# get a list of nouns (from nltk's	wordnet)
 			self.nouns = {x.name().split('.', 1)[0] for x in wn.all_synsets('n')}
 
-		# Find a third noun with which we can do the analogy
-		z_word = None
-
+		# Find a third noun (if not given) with which we can do the analogy
 		# ensure the word is different from the other and a noun
-		while z_word is None or z_word not in self.nouns or z_word==x_word or z_word==y_word:
-			z_word = rand.choice(self.words)
+		if z_word is None:
+			while  z_word not in self.nouns or z_word==x_word or z_word==y_word:
+				z_word = rand.choice(self.words)
 
 		# if analogy cannot be completed, return empty 
 		try:
@@ -154,6 +153,7 @@ if __name__ == "__main__":
 	parser.add_argument("--pair_seed", type = lambda x : x.split('-'), help="pair seed for analogy separated by \'-\'", default=None)
 	parser.add_argument("--file_seed", type = str, default=None, help="json file containing list of paired words with which to generate a specified number of analogies")
 	parser.add_argument("--n", type = int, default = None, help = "if file_seed is specified, this is taken as the number of analogies to generate")
+	parser.add_argument("--z_file", type = str, default = None, help = "file with z words to use in completing analogy pair")
 	parser.add_argument("--complete", type = lambda x : x.split('-'), help="input x-y-z, returns w such that x:y=z:w", default=None)
 	parser.add_argument("--em_limit", type=int, default=50000, help="number of words to load")
 	parser.add_argument("--i_em", default="../embeddings/GoogleNews-vectors-negative300.bin", help="The name of the embedding")
@@ -168,7 +168,12 @@ if __name__ == "__main__":
 
 	if args.file_seed is not None: # If a file of pairs is given as seed (complte x:y=z:w for z and w)
 
-		assert args.n is not None, "Unspecified number of analogies to generate"
+		if args.n is not None:
+			z_words = [None]*args.n
+		else:
+			assert args.z_file is not None, "Either specify a number of analogies of provide a file of z words"
+			with open(args.z_file, 'r') as f:
+				z_words = json.load(f)
 
 		# Load pairs from file
 		with open(args.file_seed, 'r') as f:
@@ -177,11 +182,11 @@ if __name__ == "__main__":
 		app = int(args.n/len(pairs)) # Compute number of analogies per pair
 
 		for x, y in pairs: # for each pair in the file
-			for i in range(app): # for a specified number of times
+			for z in z_words: # for a specified number of times
 
 				# generate analogy
 				with IOController():
-					z, w, _ = E.fetch_alanogy(x, y)
+					z, w, _ = E.fetch_alanogy(x, y, z)
 
 				# print if found analogy
 				if z is not None and w is not None:
@@ -204,15 +209,21 @@ if __name__ == "__main__":
 		x, y = args.pair_seed # read pair from arguments
 
 		# if a specified number of analogies to generate is given
-		if args.n is not None:
+		if args.n is not None or args.z_file is not None:
 
 			pairs = [] # store generated pairs
 
-			for i in range(args.n): # for n times
+			if args.n is not None:
+				z_words = [None]*args.n
+			else:
+				with open(args.z_file, 'r') as f:
+					z_words = json.load(f)
+
+			for z in z_words: # for n times
 
 				# sample z and find w
 				with IOController():
-					z, w, dist = E.fetch_alanogy(x, y)
+					z, w, dist = E.fetch_alanogy(x, y, z)
 
 				# if succeded then print analogy
 				if z is not None and w is not None and dist is not None:
@@ -224,10 +235,10 @@ if __name__ == "__main__":
 			print("\n%s\n" % BOLD + "Sorting..." + END)
 
 			# show top 10 pairs (closest ones to the given seed pair)
-			print("%s" % BOLD + "Top 10:" + END)
-			for i in range(10):
-				z, w, dist = pairs[i]
-				print("%s is to %s like %s is to %s (%.4f)"%(BOLD+BLUE+x+END, BOLD+BLUE+y+END, BOLD+GREEN+z+END, BOLD+GREEN+w+END, dist))
+			# print("%s" % BOLD + "Top 10:" + END)
+			# for i in range(10):
+			#	z, w, dist = pairs[i]
+			#	print("%s is to %s like %s is to %s (%.4f)"%(BOLD+BLUE+x+END, BOLD+BLUE+y+END, BOLD+GREEN+z+END, BOLD+GREEN+w+END, dist))
 
 			# write results in specified file
 			with open(args.pairs_fname, 'w') as f:
