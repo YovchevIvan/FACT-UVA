@@ -86,6 +86,14 @@ class WordEmbedding:
         # return word vector based on word
         return self.vecs[self.index[word]]
 
+    def diff(self, w_1, w_2):
+
+    	# vector difference between two words
+    	v_diff = self.v(w_1) - self.v(w_2)
+
+    	# return normalized
+    	return v_diff/np.linalg.norm(v_diff)
+
     def save_w2v(self, filename, ext):
         # open file to write to
         with open(filename, 'wb') as fout:
