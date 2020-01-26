@@ -11,6 +11,9 @@ from random import seed
 import numpy as np
 import argparse
 import gensim
+import json
+import os 
+
 seed(10)
 
 def load_limited_vocab(embeddings_file):
@@ -103,14 +106,14 @@ def train_and_predict(space_train, space_test, clf, portion, wv, w2i, fname):
 	
 	clf.fit(X_train, Y_train)
 
-	print ('\ttrain with', space_train)
-	print ('\ttest with', space_test)
+	#print ('\ttrain with', space_train)
+	#print ('\ttest with', space_test)
 
 	preds = clf.predict(X_test)
 
 	accuracy = [1 if y==z else 0 for y,z in zip(preds, Y_test)]
 	acc =  float(sum(accuracy))/len(accuracy)
-	print ('\taccuracy:',acc)
+	#print ('\taccuracy:',acc)
 	return acc
 
 def run_all_classifiers(wv, w2i, fname):
@@ -134,8 +137,8 @@ def run_all_classifiers(wv, w2i, fname):
 
 
 
-	classifiers = [clf_svm_rbf, clf_logreg, clf_mlp]
-	classifier_names = ["SVM - radial basis", "Logistic regression","MLP"]
+	classifiers = [clf_svm_rbf,clf_logreg, clf_mlp]
+	classifier_names = [ "SVM-RBF", "Logistic regression", "MLP"]
 	seeds = [1,2,3,4,5,6,7,8,9,10]
 
 	splits = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
@@ -150,7 +153,7 @@ def run_all_classifiers(wv, w2i, fname):
 		clf_acc_aft = []
 		acc_diff = []
 		for split in splits:
-			print("\nData used (portion): " + str(split) + "\n")
+			#print("\nData used (portion): " + str(split) + "\n")
 			# classification before debiasing
 			acc_bef = 0
 			acc_aft = 0
@@ -170,31 +173,50 @@ def run_all_classifiers(wv, w2i, fname):
 		accuracies_bef.append(clf_acc_bef)
 		accuracies_aft.append(clf_acc_aft)
 		acc_diffs.append(acc_diff)
-	
-	
-	#### Plotting
+		print("classifier done")
 
-	fig,a =	 plt.subplots(1, 3)
-	plt.suptitle("Classification results - " + config.embedding)
-	a[0].set_title("Classification on original embeddings")
-	a[0].set_xlabel('training data used (portion)')
-	a[0].set_ylabel('accuracy')
-	a[0].set_ylim(0.7, 1.05)
-	a[1].set_title("Classification on debiased embeddings")
-	a[1].set_xlabel('training data used (portion)')
-	a[1].set_ylabel('accuracy')
-	a[1].set_ylim(0.7, 1.05)
-	a[2].set_title("Difference: original - debiased")
-	a[2].set_xlabel('training data used (portion)')
-	a[2].set_ylabel('accuracy difference')
-	for accuracy in accuracies_bef:
-		a[0].plot(splits, accuracy)
-	for accuracy in accuracies_aft:
-		a[1].plot(splits, accuracy)	 
-	for accuracy in acc_diffs:
-		a[2].plot(splits, accuracy)
-	plt.legend(classifier_names)
-	plt.show()
+		## save results
+		results = {}
+		results["accuracies_bef"] = accuracies_bef
+		results["accuracies_aft"] = accuracies_aft
+		results["acc_diffs"] = acc_diffs
+		results["splits"] = splits
+		results["classifier_names"] = classifier_names
+
+
+		dir_path = os.path.dirname(os.path.realpath(__file__))
+		js = json.dumps(results)
+		f = open(dir_path + "/results/results_" + config.fname,"w")
+		f.write(js)
+		f.close()
+
+def plot_results(results, embeddings):
+    ## plotting results
+    
+    splits = results["splits"]
+    
+    fig,a =	 plt.subplots(1, 3)
+    fig.set_figwidth(15)
+    plt.suptitle("Classification results - " + embeddings)
+    a[0].set_title("Classification on original embeddings")
+    a[0].set_xlabel('training data used (portion)')
+    a[0].set_ylabel('accuracy')
+    a[0].set_ylim(0.7, 1.05)
+    a[1].set_title("Classification on debiased embeddings")
+    a[1].set_xlabel('training data used (portion)')
+    a[1].set_ylabel('accuracy')
+    a[1].set_ylim(0.7, 1.05)
+    a[2].set_title("Difference: original - debiased")
+    a[2].set_xlabel('training data used (portion)')
+    a[2].set_ylabel('accuracy difference')
+    for accuracy in results["accuracies_bef"]:
+        a[0].plot(splits, accuracy)
+    for accuracy in results["accuracies_aft"]:
+        a[1].plot(splits, accuracy)	 
+    for accuracy in results["acc_diffs"]:
+        a[2].plot(splits, accuracy)
+    plt.legend(results["classifier_names"])
+    plt.show()
 
 ############################# MAIN #####################################
 if __name__ == "__main__":
@@ -203,20 +225,13 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 
 	# Model params
-	parser.add_argument('--embedding', type=str, default="w2v", help="Embeddings for the test: w2v or glove")
+	parser.add_argument('--embeddings_original', type=str, default="../../embeddings/bias_word2vec.bin", help="Path to original embeddings file")
+	parser.add_argument('--embeddings_debiased', type=str, default="../../embeddings/debiased_word2vec.bin", help="Path to debiased embeddings file")
 	parser.add_argument('--fname', type=str, default="results", help="Prefix name of output file")
 	config = parser.parse_args()
 
-	#select correct embeddings paths
-	if config.embedding == 'w2v':
-		emb_path_bef = "../../embeddings/bias_word2vec.bin"
-		emb_path_aft = "../../embeddings/debiased_word2vec.bin"
-	elif config.embedding == 'glove':
-		emb_path_bef = "../../embeddings/bias_glove.bin"
-		emb_path_aft = "../../embeddings/debiased_glove.bin"
-	else:
-		print("Please give a correct embeddings name: w2v|glove")
-		exit()
+	emb_path_bef = config.embeddings_original
+	emb_path_aft = config.embeddings_debiased
 
 	#loading limited embeddings
 	vocab = {} 
@@ -241,4 +256,3 @@ if __name__ == "__main__":
 	# classifiaction aims to tell which words are originally masculine and feminine
 	# if the debiasing works as intended, after debiasing the model should not be able to learn separation
 	run_all_classifiers(wv, w2i, config.fname)
-	
