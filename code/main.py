@@ -214,20 +214,29 @@ def project_professions(args, E, before=True):
 
     # if professions are being projected
     if args.load_profs:
+        # get two words defining the axis
         w_axis = args.axis_profs.split("-")
+
+        # get axis in vector form
         v_axis = E.diff(w_axis[0], w_axis[1])
 
+        # project professions on to axis sorted by distance
         p_profs = sorted([(E.v(w).dot(v_axis), w) for w in args.profs if w in E.index])
 
+        # number of projections to print
         num = args.n_profs
         if num > len(p_profs):
             num = len(p_profs)
 
+        # get extremes on one side
         extreme_1 = p_profs[0:num]
+
+        # get extremes on the other side
         extreme_2 = p_profs[-num:]
         # reverse
         extreme_2 = extreme_2[::-1]
 
+        # prinitng stuff
         if before:
             print("%c%s%s%s%s" % ('\n', BOLD, RED, "   Before debiasing", END))
         else:
