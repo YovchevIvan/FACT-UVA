@@ -301,7 +301,7 @@ if __name__ == "__main__":
     parser.add_argument("--eq_fn", help="JSON with equalizing pairs", default="../data/equalize_pairs.json")
     parser.add_argument("--load_profs", type=bool, help="Flag for loading professions", default=False)
     parser.add_argument("--profs", help="JSON with list of professions", default="../data/professions.json")
-    parser.add_argument("--axis_profs", help="Projection axis for professions", default="softball-football")
+    parser.add_argument("--axis_profs", help="Projection axis for professions. Examples: she-he, softball-football etc. Format is word1-word2", default="softball-football")
     parser.add_argument("--n_profs", type=int, help="Number of most extreme professions to print", default=5)
     parser.add_argument("--debias_o_em", help="Output debiased embeddings file", default="../embeddings/debiased.bin")
     parser.add_argument("--bias_o_em", help="Output bieased embeddings file", default="../embeddings/biased.bin")
