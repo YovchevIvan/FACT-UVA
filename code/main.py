@@ -88,11 +88,11 @@ class WordEmbedding:
 
     def diff(self, w_1, w_2):
 
-    	# vector difference between two words
-    	v_diff = self.v(w_1) - self.v(w_2)
+        # vector difference between two words
+        v_diff = self.v(w_1) - self.v(w_2)
 
-    	# return normalized
-    	return v_diff/np.linalg.norm(v_diff)
+        # return normalized
+        return v_diff/np.linalg.norm(v_diff)
 
     def save_w2v(self, filename, ext):
         # open file to write to
@@ -216,6 +216,13 @@ def main(args):
     with open(args.g_words_fn, "r") as f:
         gender_specific_words = json.load(f)
 
+    if args.load_profs:
+        # read professions lisst
+        with open(args.profs, "r") as f:
+            professions = json.load(f)
+            professions = [p[0] for p in professions]
+            print(professions)
+
     # create word embedding
     E = WordEmbedding(args.i_em, args.em_limit)
 
@@ -242,6 +249,8 @@ if __name__ == "__main__":
     parser.add_argument("--def_fn", help="JSON of definitional pairs", default="../data/definitional_pairs.json")
     parser.add_argument("--g_words_fn", help="File containing words not to neutralize (one per line)", default="../data/gender_specific_full.json")
     parser.add_argument("--eq_fn", help="JSON with equalizing pairs", default="../data/equalize_pairs.json")
+    parser.add_argument("--load_profs", type=bool, help="Flag for loading professions", default=False)
+    parser.add_argument("--profs", help="JSON with list of professions", default="../data/professions.json")
     parser.add_argument("--debias_o_em", help="Output debiased embeddings file", default="../embeddings/debiased.bin")
     parser.add_argument("--bias_o_em", help="Output bieased embeddings file", default="../embeddings/biased.bin")
     parser.add_argument("--o_ext", help="Extension of output file [txt, bin]", default="bin")
