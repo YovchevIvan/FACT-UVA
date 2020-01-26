@@ -38,7 +38,7 @@ python3 main.py --i_em=../embeddings/glove.formatted.txt --debias_o_em=../embedd
 
 #### To run professions projecting on a given axis
 
-You can run the __main.py__ script as described above with additional parameters. __--load_profs__ must be set to True to call the projecting method. A list of professions can be specified through __--profs__ param where the value should be the path to a JSON file. By default the data/professions.json file is used so does not need to be specified. The __--axis_profs__ param is used to specify the two words defining the axis to project on. Default is softball-football. The format to specify the axis in is: word1-word2. Finally, the __--n_profs__ param can be used to specify how many of the profession extremes to print. The default is 5 as seen in Figure 3 in the [original paper](https://arxiv.org/abs/1607.06520)
+You can run the __main.py__ script as described above with additional parameters. __--load_profs__ must be set to True to call the projecting method. A list of professions can be specified through __--profs__ param where the value should be the path to a JSON file. By default the `data/professions.json` file is used so does not need to be specified. The __--axis_profs__ param is used to specify the two words defining the axis to project on. Default is softball-football. The format to specify the axis in is: word1-word2. Finally, the __--n_profs__ param can be used to specify how many of the profession extremes to print. The default is 5 as seen in Figure 3 in the [original paper](https://arxiv.org/abs/1607.06520)
 
 ### To run analogy generator
 
