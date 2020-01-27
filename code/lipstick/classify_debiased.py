@@ -16,8 +16,16 @@ import os
 
 seed(10)
 
+#### This script is used to assess the gender debiasing performance of the proposed method: https://arxiv.org/pdf/1607.06520.pdf
+#### We run an extension of the classification test from the listick on a pig paper: https://arxiv.org/pdf/1903.03862.pdf
+#### We check how different classifiers perform in classifying male and female related words before and after debiasing, using increasing amounts of data
+#### The code is a modified version of the code given for the lipstick paper, can be cloned from: https://github.com/gonenhila/gender_bias_lipstick
+
+
 def load_limited_vocab(embeddings_file):
-	# load embeddings file limited in size created by the debiasing script (see paper)
+	## loading the embeddings of the format preoduced by the debiasing script
+	## called limited as these embeddings are limited in size (check debiasing implementation)
+	
 	# vocab: lists of vocabularies
 	# wv: word vectors
 	# w2i: dictionaries of words and their corresponding index
@@ -36,8 +44,10 @@ def load_limited_vocab(embeddings_file):
 	w2i = {w: i for i, w in enumerate(vocab)}
 	return vocab, wv, w2i
 
+
 def compute_bias_by_projection(space_to_tag, vocab,	 wv, w2i):
 	# create a dictionary of the bias, before and after
+	# this is used to select the most biased words, that are used in classification
 	males = wv[space_to_tag].dot(wv[space_to_tag][w2i[space_to_tag]['he'],:])
 	females = wv[space_to_tag].dot(wv[space_to_tag][w2i[space_to_tag]['she'],:])
 	d = {}
@@ -46,7 +56,8 @@ def compute_bias_by_projection(space_to_tag, vocab,	 wv, w2i):
 	return d
 
 def most_biased(gender_bias_bef, fname):
-	# extract nost biased words (in case it is not stored in the goven folder)
+	# extract nost biased words (in case it is not stored in the given folder)
+	# these will be the training/testing data for classification
 
 	size_train = 500
 	size_test = 2000
@@ -68,7 +79,8 @@ def most_biased(gender_bias_bef, fname):
 		pickle.dump(males, filehandle)
 
 def report_bias(gender_bias):
-	# calculate the avg bias of the vocabulary (abs) before and after debiasing (sanity check)
+	# calculate the avg bias of the vocabulary (abs) before and after debiasing
+	# this is a sanity check to see that the debiasing removed bias along the gender axis
 
 	bias = 0.0
 	for k in gender_bias:
@@ -76,7 +88,8 @@ def report_bias(gender_bias):
 	print (bias/len(gender_bias))
 
 def train_and_predict(space_train, space_test, clf, portion, wv, w2i, fname):
-	# take 5000 most biased words, split each polarity randomly to train (1/5) and test (4/5), and predict
+	# take 2500 most biased words, split each polarity randomly to train (1/5) and test (4/5)
+	# predict which ones are male and female related words using the embeddings before and after debiasing
 
 	## loading male and female most biased words
 
@@ -117,7 +130,13 @@ def train_and_predict(space_train, space_test, clf, portion, wv, w2i, fname):
 	return acc
 
 def run_all_classifiers(wv, w2i, fname):
-	# define classifier
+	## in this script we define a set of classifiers and portions of data to be used for classification
+	## In principle, if the debiasing works, classifying male and female related words should be easy before debiasing, but impossible after
+	## We check training with different data sizes to see how hard it is to find the distinction for the classifiers
+
+
+
+	# define classifier NOTE: not all of them is used currently, you can add them to the list
 	# RBF SvM
 	clf_svm_rbf = svm.SVC(25)
 	# Linear SVM
@@ -139,8 +158,10 @@ def run_all_classifiers(wv, w2i, fname):
 
 	classifiers = [clf_svm_rbf,clf_logreg, clf_mlp]
 	classifier_names = [ "SVM-RBF", "Logistic regression", "MLP"]
+	# set of random seeds, the average output of 10 runs with different seeds is reported in the end
 	seeds = [1,2,3,4,5,6,7,8,9,10]
 
+	#portions of data used for training
 	splits = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 	accuracies_bef = []
 	accuracies_aft = []
@@ -153,12 +174,13 @@ def run_all_classifiers(wv, w2i, fname):
 		clf_acc_aft = []
 		acc_diff = []
 		for split in splits:
-			#print("\nData used (portion): " + str(split) + "\n")
-			# classification before debiasing
 			acc_bef = 0
 			acc_aft = 0
 			for se in seeds:
 				seed(se)
+
+				# classification before debiasing
+
 				acc_bef += train_and_predict('bef', 'bef', clf, split, wv, w2i, fname)
 
 				# classification after debiasing
@@ -192,6 +214,7 @@ def run_all_classifiers(wv, w2i, fname):
 
 def plot_results(results, embeddings):
     ## plotting results
+	## avg accuracy of 10 runs, as a function training data used
     
     splits = results["splits"]
     
