@@ -156,7 +156,7 @@ def run_all_classifiers(wv, w2i, fname):
 
 
 
-	classifiers = [clf_svm_rbf,clf_logreg, clf_mlp]
+	classifiers = [clf_svm_rbf, clf_logreg, clf_mlp]
 	classifier_names = [ "SVM-RBF", "Logistic regression", "MLP"]
 	# set of random seeds, the average output of 10 runs with different seeds is reported in the end
 	seeds = [1,2,3,4,5,6,7,8,9,10]
@@ -197,28 +197,36 @@ def run_all_classifiers(wv, w2i, fname):
 		acc_diffs.append(acc_diff)
 		print("classifier done")
 
-		## save results
-		results = {}
-		results["accuracies_bef"] = accuracies_bef
-		results["accuracies_aft"] = accuracies_aft
-		results["acc_diffs"] = acc_diffs
-		results["splits"] = splits
-		results["classifier_names"] = classifier_names
+	## save results
+	results = {}
+	results["accuracies_bef"] = accuracies_bef
+	results["accuracies_aft"] = accuracies_aft
+	results["acc_diffs"] = acc_diffs
+	results["splits"] = splits
+	results["classifier_names"] = classifier_names
 
 
-		dir_path = os.path.dirname(os.path.realpath(__file__))
-		js = json.dumps(results)
-		f = open(dir_path + "/results/results_" + config.fname,"w")
-		f.write(js)
-		f.close()
+	dir_path = os.path.dirname(os.path.realpath(__file__))
+	js = json.dumps(results)
+	plot_results(results, config.fname)
+	f = open(dir_path + "/results/results_" + config.fname,"w")
+	f.write(js)
+	f.close()
 
-def plot_results(results, embeddings):
+def plot_results(results, embeddings, direction = "vertical"):
     ## plotting results
 	## avg accuracy of 10 runs, as a function training data used
-    
+    if direction == "horizontal":
+	    fig,a = plt.subplots(1, 3)
+    elif direction == "vertical":
+	    fig,a =	plt.subplots(1, 3)
+    else:
+	    print("invalid direction")
+	    return
+
     splits = results["splits"]
-    
-    fig,a =	 plt.subplots(1, 3)
+
+
     fig.set_figwidth(15)
     plt.suptitle("Classification results - " + embeddings)
     a[0].set_title("Classification on original embeddings")
@@ -240,6 +248,8 @@ def plot_results(results, embeddings):
         a[2].plot(splits, accuracy)
     plt.legend(results["classifier_names"])
     plt.show()
+
+
 
 ############################# MAIN #####################################
 if __name__ == "__main__":
