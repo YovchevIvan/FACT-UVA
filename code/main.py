@@ -162,7 +162,7 @@ def debias(E, gender_specific_words, definitional, equalize, num_components):
 
 	# remove top 'num_components' gender directions
 
-	for gender_direction in gender_subspace:
+	for gender_direction in gender_subspace[0:num_components]:
 
 		# get param
 		scaling = 1/gender_direction.dot(gender_direction)
