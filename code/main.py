@@ -158,57 +158,61 @@ def to_utf8(text, errors='strict', encoding='utf8'):
 def debias(E, gender_specific_words, definitional, equalize, num_components):
 
 	# get gender axis
-	gender_direction = doPCA(definitional, E, num_components).components_[0]
+	gender_subspace = doPCA(definitional, E, num_components).components_
 
-	# get param
-	scaling = 1/gender_direction.dot(gender_direction)
+	# remove top 'num_components' gender directions
 
-	# inint mask
-	marks = np.zeros(len(E.words), dtype=bool)
+	for gender_direction in gender_subspace:
 
-	# for each gender specific word
-	for w in gender_specific_words:
-		# if word is in E
-		if w in E.index:
-			# mark word to skip
-			marks[E.index[w]] = True
+		# get param
+		scaling = 1/gender_direction.dot(gender_direction)
 
-	i = 0
-	for w in E.words:
-		# for all words not market to be skipped
-		if not marks[i]:
-			# shift each vector
-			E.vecs[i] = drop(E.vecs[i], gender_direction, scaling)
-		i += 1
-	# normalize
-	E.normalize()
+		# inint mask
+		marks = np.zeros(len(E.words), dtype=bool)
 
-	# create maps from lower, title, upper to equalize pairs
-	lower = map(lambda x : (x[0].lower(), x[1].lower()), equalize)
-	title = map(lambda x : (x[0].title(), x[1].title()), equalize)
-	upper = map(lambda x : (x[0].upper(), x[1].upper()), equalize)
+		# for each gender specific word
+		for w in gender_specific_words:
+			# if word is in E
+			if w in E.index:
+				# mark word to skip
+				marks[E.index[w]] = True
 
-	# for each candidate
-	for candidates in [lower, title, upper]:
-		# for each pair in candidate
-		for (a, b) in candidates:
-			# if both a and b are in the index
-			if (a in E.index and b in E.index):
-				# get y ais shift
-				y = drop((E.v(a) + E.v(b)) / 2, gender_direction, scaling)
+		i = 0
+		for w in E.words:
+			# for all words not market to be skipped
+			if not marks[i]:
+				# shift each vector
+				E.vecs[i] = drop(E.vecs[i], gender_direction, scaling)
+			i += 1
+		# normalize
+		E.normalize()
 
-				# get z shift
-				z = np.sqrt(1 - np.linalg.norm(y)**2)
+		# create maps from lower, title, upper to equalize pairs
+		lower = map(lambda x : (x[0].lower(), x[1].lower()), equalize)
+		title = map(lambda x : (x[0].title(), x[1].title()), equalize)
+		upper = map(lambda x : (x[0].upper(), x[1].upper()), equalize)
 
-				# differnce between a and b dot product with the gender vector
-				# is negative then flip the z shift
-				if (E.v(a) - E.v(b)).dot(gender_direction) < 0:
-					z = -z
+		# for each candidate
+		for candidates in [lower, title, upper]:
+			# for each pair in candidate
+			for (a, b) in candidates:
+				# if both a and b are in the index
+				if (a in E.index and b in E.index):
+					# get y ais shift
+					y = drop((E.v(a) + E.v(b)) / 2, gender_direction, scaling)
 
-				# debiasing shift to both a and b
-				E.vecs[E.index[a]] = z * gender_direction + y
-				E.vecs[E.index[b]] = -z * gender_direction + y
-	E.normalize()
+					# get z shift
+					z = np.sqrt(1 - np.linalg.norm(y)**2)
+
+					# differnce between a and b dot product with the gender vector
+					# is negative then flip the z shift
+					if (E.v(a) - E.v(b)).dot(gender_direction) < 0:
+						z = -z
+
+					# debiasing shift to both a and b
+					E.vecs[E.index[a]] = z * gender_direction + y
+					E.vecs[E.index[b]] = -z * gender_direction + y
+		E.normalize()
 
 def project_professions(args, E, before=True):
 
