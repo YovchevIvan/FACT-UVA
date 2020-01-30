@@ -54,5 +54,12 @@ do
     iter=$(expr $iter + 1)
 done
 
+# check if file exists
+if [[ -f "result.csv" ]];
+then
+    # delete previous file
+    rm "result.csv"
+fi
+
 # store resulting string to file
 echo "$result" >> result.csv
