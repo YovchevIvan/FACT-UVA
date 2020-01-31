@@ -1,6 +1,6 @@
-soldier:woman
-doctor:doc
-coach:softball
-captain:skipper
-programmer:compiler
-professor:sociology
+professor:grad
+soldier:troop
+coach:coaching
+programmer:programmers
+doctor:therapist
+captain:sailor

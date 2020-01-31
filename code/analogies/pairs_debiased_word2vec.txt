@@ -1,6 +1,6 @@
-soldier:sailor
-doctor:nurse
-coach:coaches
-professor:sociologist
+soldier:comrade
+coach:coaching
 programmer:graphic_designer
-captain:captains
+professor:sociologist
+captain:skipper
+doctor:dermatologist
