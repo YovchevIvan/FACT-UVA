@@ -1,5 +1,14 @@
 # FACT-UVA: Man is to Programmer as Woman is to Homemaker?
 
+## Authors:
+Ivan Yovchev 12871737 yovchev23@gmail.com
+Davide Barbieri 12871745 davidebarbieri97@gmail.com
+Balint Hompot 12746452 hompot.balint@gmail.com
+Andras Csirik 12521620 csirika@gmail.com
+
+## TA
+Maurice Frank
+
 ## IMPORTANT !!!
 
 Repo moved from https://github.com/fricer/FACT-UVA to https://github.com/YovchevIvan/FACT-UVA in order to be able to add more than 4 collaborators
