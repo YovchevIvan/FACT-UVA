@@ -244,9 +244,9 @@ def project_professions(args, E, before=True):
 		if before:
 			print("%c%s%s%s%s" % ('\n', BOLD, RED, "   Before debiasing", END))
 		else:
-			print("%c%s%s%s%s" % ('\n', BOLD, GREEN, "	 After debiasing", END))
+			print("%c%s%s%s%s" % ('\n', BOLD, GREEN, "   After debiasing", END))
 
-		print("%s%s	  %s %s\t%s %s%s" % (BOLD, BLUE, w_axis[0], "extreme".ljust(15), w_axis[1], "extreme", END))
+		print("   %s%s%s %s\t%s %s%s" % (BOLD, BLUE, w_axis[0], "extreme".ljust(15), w_axis[1], "extreme", END))
 
 		tab = len(w_axis[0]) + 15
 		for i in range(len(extreme_1)):

@@ -232,7 +232,6 @@ if __name__ == "__main__":
 
 			# sort pairs by distance (descending)
 			pairs.sort(key=lambda p: float(p[2]), reverse=True)
-			print("\n%s\n" % BOLD + "Sorting..." + END)
 
 			# show top 10 pairs (closest ones to the given seed pair)
 			# print("%s" % BOLD + "Top 10:" + END)
